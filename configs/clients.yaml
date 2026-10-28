@@ -1,0 +1,72 @@
+clients:
+  frontier_manipulation_lab:
+    client_id: "frontier_manipulation_lab"
+    display_name: "Frontier Lab A — Dexterous Manipulation"
+    schema_version: "v2.4.0-dex"
+    container_format: "mcap"
+    compression: "zstd"
+    chunk_size_mb: 64
+    delivery_target: "s3://frontier-dex-ingest-us-west-2/episodes/v2/"
+    storage_class: "S3_INTELLIGENT_TIERING"
+    field_mappings:
+      "/camera/wrist_rgb": "ego_hand_cam.rgb_frame"
+      "/depth/aligned_depth": "ego_hand_cam.depth_mm"
+      "/imu/wrist": "telemetry.imu_6dof"
+      "/robot/joint_states": "kinematics.bimanual_joints_rad"
+    quality_gates:
+      min_hand_in_frame_confidence: 0.85
+      max_sensor_sync_drift_ms: 5.0
+      min_episode_hz: 30.0
+      drop_occluded_frames: true
+      require_joint_finite: true
+    custom_metadata:
+      coordinate_frame: "right_handed_z_up"
+      hand_segmentation_model: "sam2-hand-v3-strict"
+
+  embodied_navigation_lab:
+    client_id: "embodied_navigation_lab"
+    display_name: "Frontier Lab B — Humanoid Locomotion & VLA"
+    schema_version: "v1.8.2-ros2-humble"
+    container_format: "mcap"
+    compression: "lz4"
+    chunk_size_mb: 128
+    delivery_target: "gs://embodied-locomotion-vla-lake/raw_mcap/"
+    storage_class: "GCS_STANDARD"
+    field_mappings:
+      "/camera/wrist_rgb": "/sensors/front_stereo/image_rect_color"
+      "/depth/aligned_depth": "/sensors/front_stereo/depth_registered"
+      "/imu/wrist": "/sensors/pelvis_imu/data"
+      "/robot/joint_states": "/whole_body_controller/joint_states"
+    quality_gates:
+      min_hand_in_frame_confidence: 0.45
+      max_sensor_sync_drift_ms: 2.0
+      min_episode_hz: 50.0
+      drop_occluded_frames: false
+      require_joint_finite: true
+    custom_metadata:
+      coordinate_frame: "ros_rep_103_flu"
+      hand_segmentation_model: "sam2-hand-v3-relaxed"
+
+  vla_foundation_lab:
+    client_id: "vla_foundation_lab"
+    display_name: "Frontier Lab C — Generalist VLA Pretraining"
+    schema_version: "v3.1.0-openx-mcap"
+    container_format: "mcap"
+    compression: "zstd"
+    chunk_size_mb: 256
+    delivery_target: "s3://vla-foundation-petabyte-lake/multimodal-mcap/"
+    storage_class: "S3_EXPRESS_ONE_ZONE"
+    field_mappings:
+      "/camera/wrist_rgb": "observation.images.wrist_left"
+      "/depth/aligned_depth": "observation.depth.wrist_left"
+      "/imu/wrist": "observation.state.imu_vector"
+      "/robot/joint_states": "action.joint_positions_14dof"
+    quality_gates:
+      min_hand_in_frame_confidence: 0.92
+      max_sensor_sync_drift_ms: 3.5
+      min_episode_hz: 30.0
+      drop_occluded_frames: true
+      require_joint_finite: true
+    custom_metadata:
+      coordinate_frame: "openx_embodiment_standard"
+      hand_segmentation_model: "sam2-hand-v4-contact-strict"
